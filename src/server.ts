@@ -1,12 +1,10 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-import { initSchema } from "./database/db";
-import footballRoutes from "./routes/football";
-import esportRoutes from "./routes/esport";
+import footballRoutes from "./routes/football.js";
+import esportRoutes from "./routes/esport.js";
 
 dotenv.config();
-initSchema();
 
 const app = express();
 app.use(cors());
@@ -22,12 +20,7 @@ app.get("/api/health", (_req, res) => {
 app.use("/api/football", footballRoutes);
 app.use("/api/esport", esportRoutes);
 
-const PORT = process.env.PORT || 4000;
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`RevizPredict backend en ecoute sur http://localhost:${PORT}`);
-  console.log(
-    process.env.API_FOOTBALL_KEY
-      ? "Mode : donnees reelles (API-Football)"
-      : "Mode : DEMO (aucune cle API detectee)"
-  );
+  console.log(`Serveur démarré sur le port ${PORT}`);
 });
