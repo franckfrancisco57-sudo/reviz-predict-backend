@@ -1,6 +1,6 @@
 import express, { Request, Response } from 'express';
 import cors from 'cors';
-import axios from 'axios';
+import https from 'https';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -10,64 +10,81 @@ app.use(express.json());
 
 const RAPIDAPI_KEY = process.env.API_FOOTBALL_KEY || process.env.RAPIDAPI_KEY;
 
-// Route de sante
+// Route de santé
 app.get('/api/health', (req: Request, res: Response) => {
   res.json({ status: 'ok', demoMode: false });
 });
 
-// Route Predictions Football Automatiques
-app.get('/api/football', async (req: Request, res: Response) => {
-  try {
-    if (!RAPIDAPI_KEY) {
-      return res.status(500).json({ error: "Cle API non configuree" });
-    }
+// Route Prédictions Football Automatiques
+app.get('/api/football', (req: Request, res: Response) => {
+  if (!RAPIDAPI_KEY) {
+    return res.status(500).json({ error: "Clé API non configurée" });
+  }
 
-    const response = await axios.get('https://free-api-live-football-data.p.rapidapi.com/football-current-matches', {
-      headers: {
-        'x-rapidapi-key': RAPIDAPI_KEY,
-        'x-rapidapi-host': 'free-api-live-football-data.p.rapidapi.com'
+  const options = {
+    method: 'GET',
+    hostname: 'free-api-live-football-data.p.rapidapi.com',
+    port: null,
+    path: '/football-current-matches',
+    headers: {
+      'x-rapidapi-key': RAPIDAPI_KEY,
+      'x-rapidapi-host': 'free-api-live-football-data.p.rapidapi.com'
+    }
+  };
+
+  const apiReq = https.request(options, (apiRes) => {
+    let chunks: any[] = [];
+
+    apiRes.on('data', (chunk) => {
+      chunks.push(chunk);
+    });
+
+    apiRes.on('end', () => {
+      try {
+        const body = Buffer.concat(chunks).toString();
+        const data = JSON.parse(body);
+        const matchesData = data?.response || data?.matches || [];
+
+        const matchsFormates = matchesData.slice(0, 10).map((match: any, index: number) => {
+          const homeTeam = match.homeTeam?.name || match.teams?.home?.name || "Équipe Domicile";
+          const awayTeam = match.awayTeam?.name || match.teams?.away?.name || "Équipe Extérieur";
+          const league = match.league?.name || match.tournament?.name || "Football Match";
+
+          const probaHome = 45 + (index % 30);
+          const probaAway = 100 - probaHome - 15;
+
+          return {
+            id: match.id || index + 1,
+            equipes: `${homeTeam} vs ${awayTeam}`,
+            ligue: league,
+            prediction: probaHome > probaAway ? `Victoire ${homeTeam}` : `Victoire ${awayTeam}`,
+            probabilite: `${Math.max(probaHome, probaAway)}%`,
+            scorePredit: probaHome > probaAway ? "2 - 1" : "1 - 2"
+          };
+        });
+
+        res.json({
+          message: "Prédictions Football en direct",
+          count: matchsFormates.length,
+          matchs: matchsFormates
+        });
+      } catch (err: any) {
+        res.status(500).json({ error: "Erreur lecture données", details: err.message });
       }
     });
+  });
 
-    const matchesData = response.data?.response || response.data?.matches || [];
+  apiReq.on('error', (error) => {
+    res.status(500).json({ error: "Erreur API Football", details: error.message });
+  });
 
-    const matchsFormates = matchesData.slice(0, 10).map((match: any, index: number) => {
-      const homeTeam = match.homeTeam?.name || match.teams?.home?.name || "Equipe Domicile";
-      const awayTeam = match.awayTeam?.name || match.teams?.away?.name || "Equipe Exterieur";
-      const league = match.league?.name || match.tournament?.name || "Football Match";
-
-      const probaHome = 45 + (index % 30);
-      const probaAway = 100 - probaHome - 15;
-
-      return {
-        id: match.id || index + 1,
-        equipes: `${homeTeam} vs ${awayTeam}`,
-        ligue: league,
-        prediction: probaHome > probaAway ? `Victoire ${homeTeam}` : `Victoire ${awayTeam}`,
-        probabilite: `${Math.max(probaHome, probaAway)}%`,
-        scorePredit: probaHome > probaAway ? "2 - 1" : "1 - 2"
-      };
-    });
-
-    res.json({
-      message: "Predictions Football en direct",
-      count: matchsFormates.length,
-      matchs: matchsFormates
-    });
-
-  } catch (error: any) {
-    console.error("Erreur API Football:", error.message);
-    res.status(500).json({
-      error: "Impossible d'importer les matchs en direct",
-      details: error.message
-    });
-  }
+  apiReq.end();
 });
 
-// Route Predictions E-Sport
+// Route Prédictions E-Sport
 app.get('/api/esport', (req: Request, res: Response) => {
   res.json({
-    message: "Predictions E-Sport en direct",
+    message: "Prédictions E-Sport en direct",
     matchs: [
       {
         id: 1,
@@ -88,5 +105,5 @@ app.get('/api/esport', (req: Request, res: Response) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`Serveur demarre sur le port ${PORT}`);
+  console.log(`Serveur démarré sur le port ${PORT}`);
 });
