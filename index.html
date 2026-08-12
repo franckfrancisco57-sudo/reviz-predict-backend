@@ -3,121 +3,160 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Reviz Predict</title>
-  <style>
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #0f172a;
-      color: #f8fafc;
-      margin: 0;
-      padding: 20px;
-    }
-    .container {
-      max-width: 800px;
-      margin: 0 auto;
-    }
-    h1 {
-      text-align: center;
-      color: #38bdf8;
-    }
-    .card {
-      background-color: #1e293b;
-      border-radius: 8px;
-      padding: 20px;
-      margin-bottom: 20px;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-    }
-    button {
-      background-color: #0284c7;
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: bold;
-      transition: background 0.2s;
-    }
-    button:hover {
-      background-color: #0369a1;
-    }
-    .status {
-      display: inline-block;
-      padding: 4px 8px;
-      border-radius: 4px;
-      font-size: 0.85em;
-      font-weight: bold;
-    }
-    .status-ok {
-      background-color: #166534;
-      color: #4ade80;
-    }
-  </style>
+  <title>Avise Predic - Football & eSport</title>
+  <!-- Tailwind CSS pour le style -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Vue.js 3 -->
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 </head>
-<body>
+<body class="bg-slate-900 text-white font-sans min-h-screen">
 
-  <div class="container">
-    <h1>⚽ Reviz Predict 🎮</h1>
-    
-    <div class="card">
-      <h2>Statut du Serveur Backend</h2>
-      <button onclick="verifierServeur()">Tester le serveur</button>
-      <p id="serveur-status">Clique sur le bouton pour vérifier le serveur.</p>
-    </div>
+  <div id="app">
+    <!-- HEADER -->
+    <header class="bg-slate-800 border-b border-slate-700 p-4 sticky top-0 z-50 shadow-md">
+      <div class="max-w-6xl mx-auto flex justify-between items-center">
+        <h1 class="text-2xl font-black tracking-wider text-emerald-400">AVISE PREDIC</h1>
+        <div class="text-xs bg-slate-700 px-3 py-1 rounded-full text-slate-300 font-medium">
+          Moteur IA v1.0
+        </div>
+      </div>
+    </header>
 
-    <div class="card">
-      <h2>Prédictions Football</h2>
-      <button onclick="chargerFootball()">Afficher les matchs</button>
-      <div id="football-results"></div>
-    </div>
+    <main class="max-w-6xl mx-auto p-4">
+      <!-- NAVIGATION PAR ONGLETS -->
+      <div class="flex gap-4 mb-6 border-b border-slate-700 pb-3">
+        <button 
+          @click="chargerSection('football')"
+          :class="[
+            'px-5 py-2.5 rounded-lg font-bold transition-all flex items-center gap-2 cursor-pointer',
+            sectionActive === 'football' 
+              ? 'bg-emerald-500 text-slate-950 shadow-lg shadow-emerald-500/20' 
+              : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white'
+          ]"
+        >
+          ⚽ Football Réel
+        </button>
 
-    <div class="card">
-      <h2>Prédictions E-Sport</h2>
-      <button onclick="chargerEsport()">Afficher les matchs E-Sport</button>
-      <div id="esport-results"></div>
-    </div>
+        <button 
+          @click="chargerSection('esport')"
+          :class="[
+            'px-5 py-2.5 rounded-lg font-bold transition-all flex items-center gap-2 cursor-pointer',
+            sectionActive === 'esport' 
+              ? 'bg-purple-500 text-white shadow-lg shadow-purple-500/20' 
+              : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white'
+          ]"
+        >
+          🎮 FIFA eSport Live
+        </button>
+      </div>
+
+      <!-- CHARGEMENT -->
+      <div v-if="enChargement" class="text-center py-20 text-slate-400">
+        <div class="animate-spin inline-block w-8 h-8 border-4 border-emerald-500 border-t-transparent rounded-full mb-4"></div>
+        <p class="text-sm font-medium">Chargement des prédictions Avise Predic...</p>
+      </div>
+
+      <!-- ERREUR SI SOUCI API -->
+      <div v-else-if="erreur" class="text-center py-12 text-rose-400 bg-slate-800/50 rounded-xl border border-rose-500/20">
+        <p class="font-bold mb-2">Impossible de récupérer les matchs</p>
+        <p class="text-xs text-slate-400">{{ erreur }}</p>
+      </div>
+
+      <!-- LISTE DES MATCHS ET PRÉDICTIONS -->
+      <div v-else class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div 
+          v-for="match in listeMatchs" 
+          :key="match.id_match" 
+          class="bg-slate-800 border border-slate-700 rounded-xl p-4 flex flex-col justify-between hover:border-slate-600 transition shadow-sm"
+        >
+          <!-- Entête du Match -->
+          <div>
+            <div class="flex justify-between items-center text-xs text-slate-400 mb-2">
+              <span class="font-semibold text-emerald-400">{{ match.competition || match.mode_jeu }}</span>
+              <span class="bg-slate-700/50 px-2 py-0.5 rounded text-[10px]">{{ match.date_et_heure || match.horaire }}</span>
+            </div>
+
+            <div class="text-base font-bold text-center my-3 text-slate-100">
+              {{ match.rencontre }}
+            </div>
+          </div>
+
+          <!-- BLOC PRÉDICTION AVISE PREDIC -->
+          <div class="bg-slate-900/90 rounded-lg p-3 border border-slate-700/50 mt-2">
+            <div class="flex justify-between items-center mb-2">
+              <span class="text-[10px] uppercase font-bold tracking-wider text-slate-400">Pronostic IA</span>
+              <span class="text-xs font-bold text-emerald-400">
+                Confiance : {{ match.analyse_avise_predic?.taux_de_confiance }}
+              </span>
+            </div>
+
+            <div class="text-center font-black text-emerald-300 text-sm py-1.5 bg-emerald-950/40 rounded border border-emerald-500/20 mb-3">
+              {{ match.analyse_avise_predic?.prediction_principale }}
+            </div>
+
+            <!-- Détails Probabilités 1 N 2 -->
+            <div class="grid grid-cols-3 text-center text-xs gap-1 bg-slate-950 p-2 rounded">
+              <div>
+                <div class="text-[10px] text-slate-500">1</div>
+                <div class="font-bold text-slate-200">{{ match.analyse_avise_predic?.probabilites?.domicile }}</div>
+              </div>
+              <div>
+                <div class="text-[10px] text-slate-500">X</div>
+                <div class="font-bold text-slate-200">{{ match.analyse_avise_predic?.probabilites?.nul }}</div>
+              </div>
+              <div>
+                <div class="text-[10px] text-slate-500">2</div>
+                <div class="font-bold text-slate-200">{{ match.analyse_avise_predic?.probabilites?.exterieur }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
   </div>
 
   <script>
-    const API_URL = "https://reviz-predict-backend.onrender.com/api";
+    const { createApp, ref, onMounted } = Vue;
 
-    async function verifierServeur() {
-      const statusElement = document.getElementById("serveur-status");
-      statusElement.innerText = "Chargement...";
-      try {
-        const response = await fetch(`${API_URL}/health`);
-        const data = await response.json();
-        if (data.status === "ok") {
-          statusElement.innerHTML = `<span class="status status-ok">🟢 En ligne (Mode Demo: ${data.demoMode})</span>`;
-        }
-      } catch (error) {
-        statusElement.innerText = "❌ Erreur de connexion au serveur.";
-      }
-    }
+    createApp({
+      setup() {
+        const API_URL = 'https://reviz-predict-backend.onrender.com/api';
+        const sectionActive = ref('football');
+        const listeMatchs = ref([]);
+        const enChargement = ref(false);
+        const erreur = ref(null);
 
-    async function chargerFootball() {
-      const resElement = document.getElementById("football-results");
-      resElement.innerText = "Chargement des prédictions...";
-      try {
-        const response = await fetch(`${API_URL}/football`);
-        const data = await response.json();
-        resElement.innerHTML = `<p><strong>Message:</strong> ${data.message}</p>`;
-      } catch (error) {
-        resElement.innerText = "❌ Impossible de charger le football.";
-      }
-    }
+        const chargerSection = async (type) => {
+          sectionActive.value = type;
+          enChargement.value = true;
+          erreur.value = null;
+          listeMatchs.value = [];
 
-    async function chargerEsport() {
-      const resElement = document.getElementById("esport-results");
-      resElement.innerText = "Chargement des prédictions...";
-      try {
-        const response = await fetch(`${API_URL}/esport`);
-        const data = await response.json();
-        resElement.innerHTML = `<p><strong>Message:</strong> ${data.message}</p>`;
-      } catch (error) {
-        resElement.innerText = "❌ Impossible de charger l'Esport.";
+          try {
+            const res = await fetch(`${API_URL}/${type}`);
+            if (!res.ok) throw new Error(`Erreur réseau (${res.status})`);
+            const data = await res.json();
+            listeMatchs.value = data.matchs || [];
+          } catch (err) {
+            erreur.value = err.message;
+          } finally {
+            enChargement.value = false;
+          }
+        };
+
+        onMounted(() => {
+          chargerSection('football');
+        });
+
+        return {
+          sectionActive,
+          listeMatchs,
+          enChargement,
+          erreur,
+          chargerSection
+        };
       }
-    }
+    }).mount('#app');
   </script>
-
 </body>
 </html>
