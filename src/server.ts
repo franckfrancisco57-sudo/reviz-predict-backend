@@ -22,7 +22,6 @@ app.get('/api/football', async (req: Request, res: Response) => {
       return res.status(500).json({ error: "Clé API non configurée" });
     }
 
-    // Récupération des matchs de la journée
     const response = await axios.get('https://free-api-live-football-data.p.rapidapi.com/football-current-matches', {
       headers: {
         'x-rapidapi-key': RAPIDAPI_KEY,
@@ -32,13 +31,11 @@ app.get('/api/football', async (req: Request, res: Response) => {
 
     const matchesData = response.data?.response || response.data?.matches || [];
 
-    // Formatage des matchs avec algorithme de prédiction automatique
     const matchsFormates = matchesData.slice(0, 10).map((match: any, index: number) => {
       const homeTeam = match.homeTeam?.name || match.teams?.home?.name || "Équipe Domicile";
       const awayTeam = match.awayTeam?.name || match.teams?.away?.name || "Équipe Extérieur";
       const league = match.league?.name || match.tournament?.name || "Football Match";
 
-      // Simulation de calcul de probabilité basée sur les données du match
       const probaHome = 45 + (index % 30);
       const probaAway = 100 - probaHome - 15;
 
