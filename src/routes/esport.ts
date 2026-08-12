@@ -9,7 +9,7 @@ function genererPredictionFIFA(homeTeam: string, awayTeam: string, id: number) {
   const seed = (id + homeTeam.length * 3 + awayTeam.length * 7) % 100;
   
   let probaHome = 40 + (seed % 35);
-  let probaAway = 100 - probaHome - 5; // Moins de nuls en jeux virtuels
+  let probaAway = 100 - probaHome - 5;
   if (probaAway < 15) probaAway = 15;
   const probaNul = Math.max(0, 100 - probaHome - probaAway);
 
@@ -49,7 +49,6 @@ router.get('/', (req: Request, res: Response) => {
   const matchsFIFA = [];
   const maintenant = new Date();
 
-  // Génération des rencontres en continu 24h/24
   for (let i = 0; i < 8; i++) {
     const homeIndex = (i * 2) % clubs.length;
     let awayIndex = (i * 2 + 1) % clubs.length;
