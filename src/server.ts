@@ -10,16 +10,16 @@ app.use(express.json());
 
 const RAPIDAPI_KEY = process.env.API_FOOTBALL_KEY || process.env.RAPIDAPI_KEY;
 
-// Route de santé
+// Route de sante
 app.get('/api/health', (req: Request, res: Response) => {
   res.json({ status: 'ok', demoMode: false });
 });
 
-// Route Prédictions Football Automatiques
+// Route Predictions Football Automatiques
 app.get('/api/football', async (req: Request, res: Response) => {
   try {
     if (!RAPIDAPI_KEY) {
-      return res.status(500).json({ error: "Clé API non configurée" });
+      return res.status(500).json({ error: "Cle API non configuree" });
     }
 
     const response = await axios.get('https://free-api-live-football-data.p.rapidapi.com/football-current-matches', {
@@ -32,8 +32,8 @@ app.get('/api/football', async (req: Request, res: Response) => {
     const matchesData = response.data?.response || response.data?.matches || [];
 
     const matchsFormates = matchesData.slice(0, 10).map((match: any, index: number) => {
-      const homeTeam = match.homeTeam?.name || match.teams?.home?.name || "Équipe Domicile";
-      const awayTeam = match.awayTeam?.name || match.teams?.away?.name || "Équipe Extérieur";
+      const homeTeam = match.homeTeam?.name || match.teams?.home?.name || "Equipe Domicile";
+      const awayTeam = match.awayTeam?.name || match.teams?.away?.name || "Equipe Exterieur";
       const league = match.league?.name || match.tournament?.name || "Football Match";
 
       const probaHome = 45 + (index % 30);
@@ -50,7 +50,7 @@ app.get('/api/football', async (req: Request, res: Response) => {
     });
 
     res.json({
-      message: "Prédictions Football en direct",
+      message: "Predictions Football en direct",
       count: matchsFormates.length,
       matchs: matchsFormates
     });
@@ -64,10 +64,10 @@ app.get('/api/football', async (req: Request, res: Response) => {
   }
 });
 
-// Route Prédictions E-Sport
+// Route Predictions E-Sport
 app.get('/api/esport', (req: Request, res: Response) => {
   res.json({
-    message: "Prédictions E-Sport en direct",
+    message: "Predictions E-Sport en direct",
     matchs: [
       {
         id: 1,
@@ -88,5 +88,5 @@ app.get('/api/esport', (req: Request, res: Response) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`Serveur démarré sur le port ${PORT}`);
+  console.log(`Serveur demarre sur le port ${PORT}`);
 });
