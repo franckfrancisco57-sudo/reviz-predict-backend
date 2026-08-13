@@ -1,4 +1,3 @@
-
 import express, { Request, Response } from 'express';
 import cors from 'cors';
 import { GoogleGenAI } from '@google/genai';
@@ -42,7 +41,7 @@ app.post('/api/analyser', async (req: Request, res: Response) => {
     `;
 
     const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
+      model: 'gemini-2.0-flash',
       contents: prompt,
     });
 
