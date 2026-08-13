@@ -1,6 +1,7 @@
 import express, { Request, Response } from 'express';
 import cors from 'cors';
-import { GoogleGenerativeAI } from '@google/generative-ai';
+
+const { GoogleGenerativeAI } = require('@google/generative-ai');
 
 const app = express();
 app.use(cors());
@@ -15,36 +16,73 @@ app.post('/api/analyser', async (req: Request, res: Response) => {
 
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
+    let consignesSpecifiques = "";
+
+    // CONSIGNES SELON LE TYPE DE JEU EXACT
+    if (type === 'FIFA Volta') {
+      consignesSpecifiques = `
+      C'est un match VOLTA / REDUCED (3x3, 4x4, 5x5). Le nombre de buts est TRÈS ÉLEVÉ.
+      - Génère un score par mi-temps (Mi-temps 1 et Mi-temps 2).
+      - Le score final doit être élevé (ex: 6-4, 8-5, 7-6).
+      - Donne un conseil du type "Plus de 9.5 buts dans le match" ou "Plus de 4.5 buts en MT1".
+      `;
+    } else if (type === 'Jeu de Dés Virtuels') {
+      consignesSpecifiques = `
+      C'est un JEU DE DÉS VIRTUELS entre Joueur 1 (${homeTeam}) et Joueur 2 (${awayTeam}).
+      - IL N'Y A PAS DE CROUPIER NI DE BUTS DE FOOTBALL !
+      - Analyse uniquement sous forme de POINTS DE DÉS et LANCERS.
+      - Génère le score pour : Lancer 1 (ex: 9-11) et Lancer 2 (ex: 12-8).
+      - Donne le Total de Points prédit et le Gagnant du Tour.
+      `;
+    } else if (type && type.includes('Jeu 21')) {
+      consignesSpecifiques = `
+      C'est une partie de JEU 21 / BLACKJACK : Croupier (${homeTeam}) vs Joueur (${awayTeam}).
+      - Analyse équilibrée des deux côtés (Croupier et Joueur).
+      - Prédiction des points/cartes (ex: Croupier 18 - Joueur 21).
+      - Indique la probabilité de victoire de chaque côté.
+      `;
+    } else if (type === 'FIFA Penalty') {
+      consignesSpecifiques = `
+      C'est une séance de PENALTIES FIFA.
+      - Pas de mi-temps !
+      - Génère un score de séance de tirs au but (ex: 4-3, 5-4).
+      - Indique le nombre total de penalties réussis.
+      `;
+    } else {
+      consignesSpecifiques = `
+      C'est un match de Football (Réel ou Cyberleague 11v11).
+      - Génère le score à la Mi-temps et le Score Final.
+      - ÉLIMINE LE BIAIS DOMICILE AUTOMATIQUE : L'avantage du terrain ne doit PAS accorder de victoire injustifiée à une équipe nettement inférieure. Si l'équipe à l'extérieur est le grand favori, la prédiction DOIT refléter la victoire de l'équipe extérieure.
+      `;
+    }
+
     const prompt = `
-    Tu es un expert mondial en analyse statistique sportive et paris sportifs.
-    Analyse ce match de ${type || 'Football'} :
-    Championnat / Compétition : ${championnat}
-    Équipe / Côté 1 (Domicile / Croupier) : ${homeTeam}
-    Équipe / Côté 2 (Extérieur / Joueur) : ${awayTeam}
+    Tu es un expert mondial en paris sportifs (type 1XBet).
+    Type de Jeu : ${type}
+    Compétition / Contexte : ${championnat}
+    Côté 1 (Domicile / Lanceur 1 / Croupier) : ${homeTeam}
+    Côté 2 (Extérieur / Lanceur 2 / Joueur) : ${awayTeam}
 
-    RÈGLES D'ANALYSE STRICTES (CRUCIAL) :
-    1. ÉLIMINE LE BIAIS DOMICILE AUTOMATIQUE : L'avantage du terrain ne doit PAS accorder de victoire injustifiée à une équipe nettement inférieure. Si l'équipe à l'extérieur est le grand favori, la prédiction DOIT refléter la victoire de l'équipe extérieure.
-    2. RATIONALITÉ STATISTIQUE : Évalue la différence de niveau réelle, la forme récente, la qualité de l'effectif et la hiérarchie objective.
-    3. PROBABILITÉS COHÉRENTES : La somme des probabilités Domicile, Nul, Extérieur doit être égale à 100%.
+    ${consignesSpecifiques}
 
-    Réponds STRICTEMENT sous forme de JSON valide avec exactement cette structure :
+    Réponds STRICTEMENT au format JSON avec cette structure exacte :
     {
-      "type_match": "${type || 'Football'}",
+      "type_match": "${type}",
       "championnat": "${championnat}",
       "equipe_domicile": "${homeTeam}",
       "equipe_exterieur": "${awayTeam}",
-      "taux_de_confiance": "ex: 85%",
-      "pronostic_principal": "ex: Victoire Extérieur (2) ou Over 2.5",
-      "score_exact_predit": "ex: 0-3",
+      "taux_de_confiance": "ex: 88%",
+      "pronostic_principal": "ex: Plus de 8.5 Buts / Gagnant Lancer 1",
+      "score_exact_predit": "ex: MT1: 3-2 | MT2: 4-3 (Score Total: 7-5) ou Lancer 1: 10-8",
       "probabilites": {
-        "domicile": "ex: 10%",
-        "nul": "ex: 15%",
-        "exterieur": "ex: 75%"
+        "domicile": "ex: 45%",
+        "nul": "ex: 10%",
+        "exterieur": "ex: 45%"
       },
       "statistiques_avancees": {
-        "possession_attendue": "ex: 35% - 65%",
-        "tirs_cadres_estimes": "ex: 2 vs 7",
-        "conseil_paris": "ex: Victoire Extérieur avec Handicap -1"
+        "possession_attendue": "ex: Tendance 1ère MT / Lancers combinés",
+        "tirs_cadres_estimes": "ex: Total Buts / Total Points Dépassement",
+        "conseil_paris": "ex: Plus de 4.5 buts en MT1 / Joueur 2 gagne par 2 points+"
       }
     }
     `;
@@ -52,7 +90,6 @@ app.post('/api/analyser', async (req: Request, res: Response) => {
     const result = await model.generateContent(prompt);
     const responseText = result.response.text();
     
-    // Nettoyage JSON
     const cleanJson = responseText.replace(/```json/g, '').replace(/```/g, '').trim();
     const analyseData = JSON.parse(cleanJson);
 
