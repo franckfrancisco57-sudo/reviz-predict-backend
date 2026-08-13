@@ -1,14 +1,29 @@
-// Exemple de correction pour le Jeu 21 dans esport.ts
-if (type === 'Jeu 21') {
-  // Côté 1 = Joueur / Côté 2 = Croupier
-  const joueur = homeTeam || 'Joueur 1';
-  const croupier = awayTeam || 'Croupier';
+import { Router, Request, Response } from 'express';
 
-  prompt = `
-    Analyse de Jeu 21 :
-    - JOUEUR (Côté 1) : ${joueur}
-    - CROUPIER (Côté 2) : ${croupier}
-    
-    Donne le pronostic sous la forme "Points Joueur vs Points Croupier" (ex: Joueur 20 - Croupier 17).
-  `;
-}
+const router = Router();
+
+router.post('/analyser', async (req: Request, res: Response) => {
+  try {
+    const { homeTeam, awayTeam, championnat, type, numPartie } = req.body;
+
+    let consignes = '';
+
+    if (type === 'Jeu 21') {
+      const joueur = homeTeam || 'Joueur';
+      const croupier = awayTeam || 'Croupier';
+      consignes = `Analyse de Jeu 21 : Joueur=${joueur}, Croupier=${croupier}, Partie=${numPartie || 'N/A'}`;
+    } else {
+      consignes = `Analyse eSport : ${homeTeam} vs ${awayTeam} (${championnat || type})`;
+    }
+
+    res.json({
+      status: 'ok',
+      message: 'Route eSport valide',
+      consignes
+    });
+  } catch (error: any) {
+    res.status(500).json({ status: 'error', message: error.message });
+  }
+});
+
+export default router;
