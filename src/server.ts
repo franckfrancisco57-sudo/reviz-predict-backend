@@ -13,8 +13,8 @@ app.post('/api/analyser', async (req: Request, res: Response) => {
   try {
     const { homeTeam, awayTeam, championnat, type, numPartie } = req.body;
 
-    // Modèle officiel et stable
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    // Utilisation d'un modèle avec préfixe explicite requis par l'API
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
 
     let consignesSpecifiques = "";
 
