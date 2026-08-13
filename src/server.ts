@@ -13,9 +13,6 @@ app.post('/api/analyser', async (req: Request, res: Response) => {
   try {
     const { homeTeam, awayTeam, championnat, type, numPartie } = req.body;
 
-    // Modèle officiel actuel
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
-
     let consignesSpecifiques = "";
 
     if (type === 'Jeu 21') {
@@ -43,8 +40,18 @@ app.post('/api/analyser', async (req: Request, res: Response) => {
       Rédige la réponse en français avec un ton professionnel, clair et structuré.
     `;
 
-    const result = await model.generateContent(prompt);
-    const responseText = result.response.text();
+    // Essai avec gemini-2.0-flash, puis secours sur gemini-1.5-flash-latest si besoin
+    let responseText = "";
+    try {
+      const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+      const result = await model.generateContent(prompt);
+      responseText = result.response.text();
+    } catch (modelErr) {
+      console.warn("Échec gemini-2.0-flash, tentative avec gemini-1.5-flash-latest...");
+      const fallbackModel = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
+      const result = await fallbackModel.generateContent(prompt);
+      responseText = result.response.text();
+    }
 
     res.json({
       status: 'ok',
