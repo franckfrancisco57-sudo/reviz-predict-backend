@@ -1,13 +1,13 @@
 import express, { Request, Response } from 'express';
 import cors from 'cors';
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { GoogleGenAI } from '@google/genai';
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
 const apiKey = process.env.GEMINI_API_KEY || '';
-const genAI = new GoogleGenerativeAI(apiKey);
+const ai = new GoogleGenAI({ apiKey });
 
 app.post('/api/analyser', async (req: Request, res: Response) => {
   try {
@@ -40,22 +40,14 @@ app.post('/api/analyser', async (req: Request, res: Response) => {
       Rédige la réponse en français avec un ton professionnel, clair et structuré.
     `;
 
-    // Essai avec gemini-2.0-flash, puis secours sur gemini-1.5-flash-latest si besoin
-    let responseText = "";
-    try {
-      const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
-      const result = await model.generateContent(prompt);
-      responseText = result.response.text();
-    } catch (modelErr) {
-      console.warn("Échec gemini-2.0-flash, tentative avec gemini-1.5-flash-latest...");
-      const fallbackModel = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
-      const result = await fallbackModel.generateContent(prompt);
-      responseText = result.response.text();
-    }
+    const response = await ai.models.generateContent({
+      model: 'gemini-2.5-flash',
+      contents: prompt,
+    });
 
     res.json({
       status: 'ok',
-      analyse: responseText
+      analyse: response.text
     });
 
   } catch (error: any) {
