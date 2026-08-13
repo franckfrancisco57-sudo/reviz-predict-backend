@@ -1,19 +1,22 @@
 import express, { Request, Response } from 'express';
 import cors from 'cors';
-import { GoogleGenAI } from '@google/genai';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
 const apiKey = process.env.GEMINI_API_KEY || '';
-const ai = new GoogleGenAI({ apiKey });
+const genAI = new GoogleGenerativeAI(apiKey);
 
 app.post('/api/analyser', async (req: Request, res: Response) => {
   try {
     const { homeTeam, awayTeam, championnat, type, numPartie } = req.body;
 
-    let consignesSpecifiques = "";
+    // Utilisation du modèle gemini-1.5-flash
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+
+    let consignesSpecifiques = '';
 
     if (type === 'Jeu 21') {
       consignesSpecifiques = `
@@ -40,21 +43,19 @@ app.post('/api/analyser', async (req: Request, res: Response) => {
       Rédige la réponse en français avec un ton professionnel, clair et structuré.
     `;
 
-    const response = await ai.models.generateContent({
-      model: 'gemini-2.0-flash',
-      contents: prompt,
-    });
+    const result = await model.generateContent(prompt);
+    const responseText = result.response.text();
 
     res.json({
       status: 'ok',
-      analyse: response.text
+      analyse: responseText
     });
 
   } catch (error: any) {
     console.error(error);
     res.status(500).json({
       status: 'error',
-      message: error.message || "Erreur interne lors de la génération."
+      message: error.message || 'Erreur interne lors de la génération.'
     });
   }
 });
