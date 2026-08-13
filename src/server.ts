@@ -1,7 +1,6 @@
 import express, { Request, Response } from 'express';
 import cors from 'cors';
-
-const { GoogleGenerativeAI } = require('@google/generative-ai');
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
 const app = express();
 app.use(cors());
@@ -18,7 +17,7 @@ app.post('/api/analyser', async (req: Request, res: Response) => {
 
     let consignesSpecifiques = "";
 
-    // CONSIGNES SELON LE TYPE DE JEU EXACT
+    // REGLES PAR TYPE DE JEU
     if (type === 'FIFA Volta') {
       consignesSpecifiques = `
       C'est un match VOLTA / REDUCED (3x3, 4x4, 5x5). Le nombre de buts est TRÈS ÉLEVÉ.
