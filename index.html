@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Avise Predic - IA Football Réel & eSport</title>
+  <title>Avise Predic - IA Football Réel & eSport Expert</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 </head>
@@ -22,7 +22,7 @@
 
     <main class="max-w-4xl mx-auto p-4 md:p-6">
       
-      <!-- SÉLECTEUR DE SECTION PRINCIPALE -->
+      <!-- SÉLECTEUR GLOBAL -->
       <div class="flex gap-3 mb-6">
         <button 
           @click="modeGlobal = 'football'"
@@ -49,124 +49,74 @@
         </button>
       </div>
 
-      <!-- FORMULAIRE FOOTBALL RÉEL -->
+      <!-- FOOTBALL RÉEL -->
       <div v-if="modeGlobal === 'football'" class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl mb-8">
         <h2 class="text-lg font-bold text-slate-200 mb-4 flex items-center gap-2">
-          <span>🎯</span> Analyse d'un Match de Football Réel
+          <span>🎯</span> Analyse Football Réel
         </h2>
 
         <form @submit.prevent="lancerAnalyse" class="space-y-4">
           <div>
             <label class="block text-xs text-slate-400 mb-1 font-semibold">Championnat / Ligue</label>
-            <input 
-              v-model="championnat" 
-              type="text" 
-              placeholder="ex: Ligue 1, UEFA Champions League..." 
-              class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-emerald-500 transition"
-              required
-            />
+            <input v-model="championnat" type="text" placeholder="ex: Ligue 1, UEFA Champions League..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-emerald-500" required />
           </div>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label class="block text-xs text-slate-400 mb-1 font-semibold">Équipe Domicile</label>
-              <input 
-                v-model="homeTeam" 
-                type="text" 
-                placeholder="ex: PSG, Real Madrid..." 
-                class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-emerald-500 transition"
-                required
-              />
+              <input v-model="homeTeam" type="text" placeholder="ex: PSG, Real Madrid..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-emerald-500" required />
             </div>
-
             <div>
               <label class="block text-xs text-slate-400 mb-1 font-semibold">Équipe Extérieur</label>
-              <input 
-                v-model="awayTeam" 
-                type="text" 
-                placeholder="ex: Marseille, Barcelona..." 
-                class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-emerald-500 transition"
-                required
-              />
+              <input v-model="awayTeam" type="text" placeholder="ex: Marseille, Barcelona..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-emerald-500" required />
             </div>
           </div>
 
-          <button 
-            type="submit" 
-            :disabled="enChargement"
-            class="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black py-3.5 rounded-xl shadow-lg transition flex justify-center items-center gap-2 cursor-pointer disabled:opacity-50"
-          >
+          <button type="submit" :disabled="enChargement" class="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black py-3.5 rounded-xl shadow-lg transition flex justify-center items-center gap-2 cursor-pointer disabled:opacity-50">
             <span v-if="enChargement" class="animate-spin w-5 h-5 border-2 border-slate-950 border-t-transparent rounded-full"></span>
             <span v-else>⚡ GÉNÉRER L'ANALYSE FOOTBALL RÉEL</span>
           </button>
         </form>
       </div>
 
-      <!-- SECTION FIFA ESPORT & VIRTUEL AVEC SOUS-ONGLETS SUR-MESURE -->
+      <!-- FIFA ESPORT & VIRTUEL -->
       <div v-if="modeGlobal === 'esport'" class="bg-slate-900 border border-purple-500/30 rounded-2xl p-6 shadow-xl mb-8">
         <h2 class="text-lg font-bold text-purple-300 mb-4 flex items-center gap-2">
-          <span>🎮</span> Choisis la Catégorie Virtuelle
+          <span>🎮</span> Catégorie Virtuelle
         </h2>
 
-        <!-- SOUS-ONGLETS DE SÉLECTION CLASSIFIÉS -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-2 mb-6">
-          <button 
-            @click="sousModeEsport = 'cyberleagues'"
-            :class="['p-2.5 text-xs font-bold rounded-xl border transition', sousModeEsport === 'cyberleagues' ? 'bg-purple-600 border-purple-400 text-white' : 'bg-slate-950 border-slate-800 text-slate-400 hover:bg-slate-800']"
-          >
-            ⚽ Cyberleagues<br><span class="text-[10px] opacity-75">(8-12 min)</span>
+        <!-- SOUS-ONGLETS -->
+        <div class="grid grid-cols-2 md:grid-cols-5 gap-2 mb-6">
+          <button @click="sousModeEsport = 'cyberleagues'" :class="['p-2 text-xs font-bold rounded-xl border transition', sousModeEsport === 'cyberleagues' ? 'bg-purple-600 border-purple-400 text-white' : 'bg-slate-950 border-slate-800 text-slate-400 hover:bg-slate-800']">
+            ⚽ Cyberleagues
           </button>
-
-          <button 
-            @click="sousModeEsport = 'volta'"
-            :class="['p-2.5 text-xs font-bold rounded-xl border transition', sousModeEsport === 'volta' ? 'bg-purple-600 border-purple-400 text-white' : 'bg-slate-950 border-slate-800 text-slate-400 hover:bg-slate-800']"
-          >
-            ⚡ FIFA Volta<br><span class="text-[10px] opacity-75">(3x3, 4x4, 5x5)</span>
+          <button @click="sousModeEsport = 'volta'" :class="['p-2 text-xs font-bold rounded-xl border transition', sousModeEsport === 'volta' ? 'bg-purple-600 border-purple-400 text-white' : 'bg-slate-950 border-slate-800 text-slate-400 hover:bg-slate-800']">
+            ⚡ Volta (3x3/4x4/5x5)
           </button>
-
-          <button 
-            @click="sousModeEsport = 'penalty'"
-            :class="['p-2.5 text-xs font-bold rounded-xl border transition', sousModeEsport === 'penalty' ? 'bg-purple-600 border-purple-400 text-white' : 'bg-slate-950 border-slate-800 text-slate-400 hover:bg-slate-800']"
-          >
-            🥅 FIFA Penalty<br><span class="text-[10px] opacity-75">(Tirs au But)</span>
+          <button @click="sousModeEsport = 'penalty'" :class="['p-2 text-xs font-bold rounded-xl border transition', sousModeEsport === 'penalty' ? 'bg-purple-600 border-purple-400 text-white' : 'bg-slate-950 border-slate-800 text-slate-400 hover:bg-slate-800']">
+            ... Penalties
           </button>
-
-          <button 
-            @click="sousModeEsport = 'jeux_virtuels'"
-            :class="['p-2.5 text-xs font-bold rounded-xl border transition', sousModeEsport === 'jeux_virtuels' ? 'bg-purple-600 border-purple-400 text-white' : 'bg-slate-950 border-slate-800 text-slate-400 hover:bg-slate-800']"
-          >
-            🎲 Jeux Virtuels<br><span class="text-[10px] opacity-75">(Dés / Jeu 21)</span>
+          <button @click="sousModeEsport = 'des'" :class="['p-2 text-xs font-bold rounded-xl border transition', sousModeEsport === 'des' ? 'bg-purple-600 border-purple-400 text-white' : 'bg-slate-950 border-slate-800 text-slate-400 hover:bg-slate-800']">
+            🎲 Jeux de Dés
+          </button>
+          <button @click="sousModeEsport = 'jeu21'" :class="['p-2 text-xs font-bold rounded-xl border transition', sousModeEsport === 'jeu21' ? 'bg-purple-600 border-purple-400 text-white' : 'bg-slate-950 border-slate-800 text-slate-400 hover:bg-slate-800']">
+            🃏 Jeu 21
           </button>
         </div>
 
         <form @submit.prevent="lancerAnalyse" class="space-y-4">
 
-          <!-- 1. FORMULAIRE CYBERLEAGUES -->
+          <!-- 1. CYBERLEAGUES -->
           <div v-if="sousModeEsport === 'cyberleagues'" class="space-y-4">
             <div>
-              <label class="block text-xs text-purple-300 mb-1 font-semibold">Nom du Championnat / Tournoi</label>
-              <input v-model="championnat" type="text" placeholder="ex: Esports Battle, FIFA Cyber Premier League..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-purple-500" required />
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label class="block text-xs text-slate-400 mb-1 font-semibold">Joueur / Équipe 1</label>
-                <input v-model="homeTeam" type="text" placeholder="ex: Joueur A (Arsenal)" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-purple-500" required />
-              </div>
-              <div>
-                <label class="block text-xs text-slate-400 mb-1 font-semibold">Joueur / Équipe 2</label>
-                <input v-model="awayTeam" type="text" placeholder="ex: Joueur B (Chelsea)" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-purple-500" required />
-              </div>
-            </div>
-          </div>
-
-          <!-- 2. FORMULAIRE FIFA VOLTA (3x3 / 4x4 / 5x5) -->
-          <div v-if="sousModeEsport === 'volta'" class="space-y-4">
-            <div>
-              <label class="block text-xs text-purple-300 mb-1 font-semibold">Format Volta</label>
-              <select v-model="formatVolta" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-purple-500">
-                <option value="Format Volta 3x3">⚡ Volta 3 x 3</option>
-                <option value="Format Volta 4x4">⚡ Volta 4 x 4</option>
-                <option value="Format Volta 5x5">⚡ Volta 5 x 5</option>
+              <label class="block text-xs text-purple-300 mb-1 font-semibold">Championnat Virtuel</label>
+              <select v-model="championnat" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-purple-500">
+                <option value="FC 26 Champions League">FC 26 Champions League</option>
+                <option value="FC 26 Championnat du Monde">FC 26 Championnat du Monde</option>
+                <option value="FC 25 Serie A (Italie)">FC 25 Serie A (Italie)</option>
+                <option value="FC 25 Bundesliga (Allemagne)">FC 25 Bundesliga (Allemagne)</option>
+                <option value="FC 25 Ligue Européenne">FC 25 Ligue Européenne</option>
+                <option value="FC 26 La Liga (Espagne)">FC 26 La Liga (Espagne)</option>
               </select>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -181,11 +131,39 @@
             </div>
           </div>
 
-          <!-- 3. FORMULAIRE FIFA PENALTY -->
+          <!-- 2. VOLTA PRECIS -->
+          <div v-if="sousModeEsport === 'volta'" class="space-y-4">
+            <div>
+              <label class="block text-xs text-purple-300 mb-1 font-semibold">Format Volta / Reduced Exact</label>
+              <select v-model="championnat" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-purple-500">
+                <option value="FC 26 5x5 Rush Super League">FC 26 5x5 Rush Super League</option>
+                <option value="FC 24 4x4 Championnat d'Angleterre">FC 24 4x4 Championnat d'Angleterre</option>
+                <option value="FC 25 3x3 Ligue des Conférences">FC 25 3x3 Ligue des Conférences</option>
+                <option value="FC 26 English Championship">FC 26 English Championship</option>
+              </select>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs text-slate-400 mb-1 font-semibold">Joueur / Équipe 1</label>
+                <input v-model="homeTeam" type="text" placeholder="ex: Joueur A" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-purple-500" required />
+              </div>
+              <div>
+                <label class="block text-xs text-slate-400 mb-1 font-semibold">Joueur / Équipe 2</label>
+                <input v-model="awayTeam" type="text" placeholder="ex: Joueur B" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-purple-500" required />
+              </div>
+            </div>
+          </div>
+
+          <!-- 3. PENALTIES -->
           <div v-if="sousModeEsport === 'penalty'" class="space-y-4">
             <div>
-              <label class="block text-xs text-purple-300 mb-1 font-semibold">Nom de la Coupe / Match Penalty</label>
-              <input v-model="championnat" type="text" placeholder="ex: FIFA Penalty Shootout Cup..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-purple-500" required />
+              <label class="block text-xs text-purple-300 mb-1 font-semibold">Format Penalty</label>
+              <select v-model="championnat" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-purple-500">
+                <option value="FC 26 Penalty">FC 26 Penalty</option>
+                <option value="FC 25 Penalty">FC 25 Penalty</option>
+                <option value="FC 24 Penalty">FC 24 Penalty</option>
+                <option value="FIFA 23 Penalty">FIFA 23 Penalty</option>
+              </select>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
@@ -199,29 +177,54 @@
             </div>
           </div>
 
-          <!-- 4. FORMULAIRE JEUX VIRTUELS (DÉS / 21) -->
-          <div v-if="sousModeEsport === 'jeux_virtuels'" class="space-y-4">
+          <!-- 4. JEUX DE DÉS -->
+          <div v-if="sousModeEsport === 'des'" class="space-y-4">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label class="block text-xs text-purple-300 mb-1 font-semibold">Type de Jeu Virtuel</label>
-                <select v-model="typeJeuVirtuel" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-purple-500">
-                  <option value="Jeu de 21 / Blackjack">🃏 Jeu 21 / Blackjack</option>
-                  <option value="Jeu de Dés Virtuels">🎲 Jeu de Dés Virtuels</option>
-                </select>
+                <label class="block text-xs text-amber-400 mb-1 font-semibold">N° du Tour / Identifiant Match</label>
+                <input v-model="numeroTour" type="text" placeholder="ex: Tour 1 / Match #102" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-purple-500" required />
               </div>
               <div>
-                <label class="block text-xs text-amber-400 mb-1 font-semibold">N° du Match / Minute du Tirage</label>
-                <input v-model="numeroMatch" type="text" placeholder="ex: Match #4025 ou Minute 14:30" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-purple-500" required />
+                <label class="block text-xs text-slate-400 mb-1 font-semibold">Heure du Tour</label>
+                <input v-model="heureTour" type="text" placeholder="ex: 14:15" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-purple-500" />
               </div>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label class="block text-xs text-slate-400 mb-1 font-semibold">Joueur 1 / Croupier</label>
-                <input v-model="homeTeam" type="text" placeholder="ex: Joueur 1 (ou Croupier)" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-purple-500" required />
+                <label class="block text-xs text-slate-400 mb-1 font-semibold">Lanceur 1 / Équipe 1</label>
+                <input v-model="homeTeam" type="text" placeholder="ex: Joueur 1" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-purple-500" required />
               </div>
               <div>
-                <label class="block text-xs text-slate-400 mb-1 font-semibold">Joueur 2</label>
+                <label class="block text-xs text-slate-400 mb-1 font-semibold">Lanceur 2 / Équipe 2</label>
                 <input v-model="awayTeam" type="text" placeholder="ex: Joueur 2" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-purple-500" required />
+              </div>
+            </div>
+          </div>
+
+          <!-- 5. JEU 21 / BLACKJACK (ANALYSÉ JOUEUR ET CROUPIER) -->
+          <div v-if="sousModeEsport === 'jeu21'" class="space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs text-purple-300 mb-1 font-semibold">Variante du Jeu 21</label>
+                <select v-model="varianteJeu21" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-purple-500">
+                  <option value="Jeu 21 Classique">🃏 Jeu 21 Classique</option>
+                  <option value="Jeu 21 (Jusqu'à 3 Victoires)">🃏 Jeu 21 (Jusqu'à 3 Victoires)</option>
+                  <option value="Jeu 21 Dota (3 Victoires)">🃏 Jeu 21 Dota (3 Victoires)</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs text-amber-400 mb-1 font-semibold">N° de Partie / Heure de Début</label>
+                <input v-model="numeroMatch21" type="text" placeholder="ex: Partie #504 - 16:30" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-purple-500" required />
+              </div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs text-slate-400 mb-1 font-semibold">Croupier / Côté 1</label>
+                <input v-model="homeTeam" type="text" placeholder="ex: Croupier" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-purple-500" required />
+              </div>
+              <div>
+                <label class="block text-xs text-slate-400 mb-1 font-semibold">Joueur / Côté 2</label>
+                <input v-model="awayTeam" type="text" placeholder="ex: Joueur 1" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-purple-500" required />
               </div>
             </div>
           </div>
@@ -232,12 +235,12 @@
             class="w-full bg-purple-600 hover:bg-purple-500 text-white font-black py-3.5 rounded-xl shadow-lg transition flex justify-center items-center gap-2 cursor-pointer disabled:opacity-50 mt-6"
           >
             <span v-if="enChargement" class="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full"></span>
-            <span v-else>⚡ GÉNÉRER L'ANALYSE DÉTAILLÉE</span>
+            <span v-else>⚡ GÉNÉRER L'ANALYSE EXPERT ESPORT</span>
           </button>
         </form>
       </div>
 
-      <!-- AFFICHAGE DU RÉSULTAT DE L'ANALYSE -->
+      <!-- RÉSULTAT ANALYSE -->
       <div v-if="resultatAnalyse" class="bg-slate-900 border border-emerald-500/30 rounded-2xl p-6 shadow-2xl space-y-6">
         
         <div class="flex justify-between items-start border-b border-slate-800 pb-4">
@@ -261,7 +264,7 @@
           </div>
 
           <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 text-center">
-            <div class="text-xs text-slate-400 font-medium">Score Exact / Tirs Prédits</div>
+            <div class="text-xs text-slate-400 font-medium">Score / Résultat Prédit</div>
             <div class="text-emerald-300 font-black text-2xl mt-1">{{ resultatAnalyse.score_exact_predit }}</div>
           </div>
         </div>
@@ -270,32 +273,32 @@
           <div class="text-xs text-slate-400 font-bold">Probabilités Calculées</div>
           <div class="grid grid-cols-3 text-center text-xs gap-2 bg-slate-950 p-3 rounded-xl border border-slate-800">
             <div>
-              <div class="text-slate-500">1 (Victoire 1)</div>
+              <div class="text-slate-500">1 (Croupier / Domicile)</div>
               <div class="font-bold text-slate-200 mt-1 text-sm">{{ resultatAnalyse.probabilites?.domicile || '-' }}</div>
             </div>
             <div>
-              <div class="text-slate-500">X (Nul / Égalité)</div>
+              <div class="text-slate-500">X (Égalité / Nul)</div>
               <div class="font-bold text-slate-200 mt-1 text-sm">{{ resultatAnalyse.probabilites?.nul || '-' }}</div>
             </div>
             <div>
-              <div class="text-slate-500">2 (Victoire 2)</div>
+              <div class="text-slate-500">2 (Joueur / Extérieur)</div>
               <div class="font-bold text-slate-200 mt-1 text-sm">{{ resultatAnalyse.probabilites?.exterieur || '-' }}</div>
             </div>
           </div>
         </div>
 
         <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-3 text-xs">
-          <div class="font-bold text-slate-300 border-b border-slate-800 pb-2">Statistiques & Tendances Spécifiques</div>
+          <div class="font-bold text-slate-300 border-b border-slate-800 pb-2">Statistiques & Prédictions Avancées</div>
           <div class="flex justify-between text-slate-400">
-            <span>Rythme / Possession :</span>
+            <span>Tendance / Lancer / Cartes :</span>
             <span class="text-slate-200 font-semibold">{{ resultatAnalyse.statistiques_avancees?.possession_attendue || 'N/A' }}</span>
           </div>
           <div class="flex justify-between text-slate-400">
-            <span>Occasions / Tirs Estimés :</span>
+            <span>Points / Total Prédit :</span>
             <span class="text-slate-200 font-semibold">{{ resultatAnalyse.statistiques_avancees?.tirs_cadres_estimes || 'N/A' }}</span>
           </div>
           <div class="flex justify-between text-slate-400">
-            <span>Conseil Paris (Buts / Total) :</span>
+            <span>Conseil de Pari Spécifique :</span>
             <span class="text-emerald-400 font-bold">{{ resultatAnalyse.statistiques_avancees?.conseil_paris || 'N/A' }}</span>
           </div>
         </div>
@@ -315,11 +318,12 @@
         const modeGlobal = ref('football');
         const sousModeEsport = ref('cyberleagues');
         
-        const formatVolta = ref('Format Volta 3x3');
-        const typeJeuVirtuel = ref('Jeu de 21 / Blackjack');
-        const numeroMatch = ref('');
-        
-        const championnat = ref('Ligue 1');
+        const numeroTour = ref('');
+        const heureTour = ref('');
+        const varianteJeu21 = ref('Jeu 21 Classique');
+        const numeroMatch21 = ref('');
+
+        const championnat = ref('FC 26 Champions League');
         const homeTeam = ref('');
         const awayTeam = ref('');
         
@@ -337,15 +341,17 @@
 
           if (modeGlobal.value === 'esport') {
             if (sousModeEsport.value === 'cyberleagues') {
-              typeEnvoye = 'FIFA Championnat (8-12 min)';
+              typeEnvoye = 'FIFA Cyberleague';
             } else if (sousModeEsport.value === 'volta') {
-              typeEnvoye = formatVolta.value;
-              nomChampionnat = formatVolta.value;
+              typeEnvoye = 'FIFA Volta';
             } else if (sousModeEsport.value === 'penalty') {
               typeEnvoye = 'FIFA Penalty';
-            } else if (sousModeEsport.value === 'jeux_virtuels') {
-              typeEnvoye = typeJeuVirtuel.value;
-              nomChampionnat = `${typeJeuVirtuel.value} (${numeroMatch.value || 'N/A'})`;
+            } else if (sousModeEsport.value === 'des') {
+              typeEnvoye = 'Jeu de Dés Virtuels';
+              nomChampionnat = `Jeu de Dés (Tour: ${numeroTour.value || 'N/A'} - Heure: ${heureTour.value || 'N/A'})`;
+            } else if (sousModeEsport.value === 'jeu21') {
+              typeEnvoye = varianteJeu21.value;
+              nomChampionnat = `${varianteJeu21.value} (${numeroMatch21.value || 'N/A'})`;
             }
           }
 
@@ -375,9 +381,10 @@
         return {
           modeGlobal,
           sousModeEsport,
-          formatVolta,
-          typeJeuVirtuel,
-          numeroMatch,
+          numeroTour,
+          heureTour,
+          varianteJeu21,
+          numeroMatch21,
           championnat,
           homeTeam,
           awayTeam,
