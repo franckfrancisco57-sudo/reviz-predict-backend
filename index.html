@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Avise Predic - Analyseur Sportif IA</title>
+  <title>Avise Predic - IA Football Réel & eSport</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
 </head>
@@ -15,20 +15,20 @@
       <div class="max-w-4xl mx-auto flex justify-between items-center">
         <div class="flex items-center gap-2">
           <span class="text-emerald-400 font-black text-2xl tracking-wider">AVISE PREDIC</span>
-          <span class="bg-emerald-500/10 text-emerald-400 text-[10px] font-bold px-2 py-0.5 rounded border border-emerald-500/20">PRO IA ENGINE</span>
+          <span class="bg-emerald-500/10 text-emerald-400 text-[10px] font-bold px-2 py-0.5 rounded border border-emerald-500/20">GEMINI IA ENGINE</span>
         </div>
       </div>
     </header>
 
     <main class="max-w-4xl mx-auto p-4 md:p-6">
       
-      <!-- SÉLECTEUR DE MODE -->
+      <!-- SÉLECTEUR DE SCTION PRINCIPALE -->
       <div class="flex gap-3 mb-6">
         <button 
-          @click="typeMatch = 'football'"
+          @click="modeGlobal = 'football'"
           :class="[
-            'flex-1 py-3 rounded-xl font-bold text-sm transition-all flex justify-center items-center gap-2 cursor-pointer',
-            typeMatch === 'football' 
+            'flex-1 py-3.5 rounded-xl font-black text-sm transition-all flex justify-center items-center gap-2 cursor-pointer',
+            modeGlobal === 'football' 
               ? 'bg-emerald-500 text-slate-950 shadow-lg shadow-emerald-500/20' 
               : 'bg-slate-900 text-slate-400 border border-slate-800 hover:bg-slate-800'
           ]"
@@ -37,22 +37,22 @@
         </button>
 
         <button 
-          @click="typeMatch = 'esport'"
+          @click="modeGlobal = 'esport'"
           :class="[
-            'flex-1 py-3 rounded-xl font-bold text-sm transition-all flex justify-center items-center gap-2 cursor-pointer',
-            typeMatch === 'esport' 
+            'flex-1 py-3.5 rounded-xl font-black text-sm transition-all flex justify-center items-center gap-2 cursor-pointer',
+            modeGlobal === 'esport' 
               ? 'bg-purple-500 text-white shadow-lg shadow-purple-500/20' 
               : 'bg-slate-900 text-slate-400 border border-slate-800 hover:bg-slate-800'
           ]"
         >
-          🎮 FIFA eSport
+          🎮 FIFA eSport & Virtuel
         </button>
       </div>
 
-      <!-- FORMULAIRE DE SAISIE DU MATCH -->
-      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl mb-8">
+      <!-- FORMULAIRE FOOTBALL RÉEL -->
+      <div v-if="modeGlobal === 'football'" class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl mb-8">
         <h2 class="text-lg font-bold text-slate-200 mb-4 flex items-center gap-2">
-          <span>🎯</span> Lancer l'Analyse d'un Match Réel
+          <span>🎯</span> Analyse d'un Match de Football Réel
         </h2>
 
         <form @submit.prevent="lancerAnalyse" class="space-y-4">
@@ -61,7 +61,7 @@
             <input 
               v-model="championnat" 
               type="text" 
-              placeholder="ex: UEFA Champions League, Ligue 1, Premier League..." 
+              placeholder="ex: Ligue 1, UEFA Champions League, Premier League..." 
               class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-emerald-500 transition"
               required
             />
@@ -69,22 +69,22 @@
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label class="block text-xs text-slate-400 mb-1 font-semibold">Équipe Domicile (Home)</label>
+              <label class="block text-xs text-slate-400 mb-1 font-semibold">Équipe Domicile</label>
               <input 
                 v-model="homeTeam" 
                 type="text" 
-                placeholder="ex: FC Barcelona, PSG, Arsenal..." 
+                placeholder="ex: PSG, Real Madrid, Arsenal..." 
                 class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-emerald-500 transition"
                 required
               />
             </div>
 
             <div>
-              <label class="block text-xs text-slate-400 mb-1 font-semibold">Équipe Extérieur (Away)</label>
+              <label class="block text-xs text-slate-400 mb-1 font-semibold">Équipe Extérieur</label>
               <input 
                 v-model="awayTeam" 
                 type="text" 
-                placeholder="ex: Real Madrid, Marseille, Chelsea..." 
+                placeholder="ex: Marseille, Barcelona, Chelsea..." 
                 class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-emerald-500 transition"
                 required
               />
@@ -97,7 +97,75 @@
             class="w-full bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black py-3.5 rounded-xl shadow-lg transition flex justify-center items-center gap-2 cursor-pointer disabled:opacity-50"
           >
             <span v-if="enChargement" class="animate-spin w-5 h-5 border-2 border-slate-950 border-t-transparent rounded-full"></span>
-            <span v-else>⚡ GÉNÉRER L'ANALYSE IA DÉTAILLÉE</span>
+            <span v-else>⚡ GÉNÉRER L'ANALYSE FOOTBALL RÉEL</span>
+          </button>
+        </form>
+      </div>
+
+      <!-- FORMULAIRE FIFA ESPORT & VIRTUEL -->
+      <div v-if="modeGlobal === 'esport'" class="bg-slate-900 border border-purple-500/30 rounded-2xl p-6 shadow-xl mb-8">
+        <h2 class="text-lg font-bold text-purple-300 mb-4 flex items-center gap-2">
+          <span>🎮</span> Analyse Spécifique FIFA eSport & Jeux Virtuels
+        </h2>
+
+        <form @submit.prevent="lancerAnalyse" class="space-y-4">
+          
+          <!-- CHOIX DU FORMAT ESPORT -->
+          <div>
+            <label class="block text-xs text-purple-300 mb-1 font-semibold">Catégorie du Jeu / Format</label>
+            <select 
+              v-model="categorieEsport" 
+              class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-purple-500 transition"
+            >
+              <option value="FIFA Championnat (8-12 min)">⚽ FIFA Championnats Virtuels (Cyberleagues 8-12 min)</option>
+              <option value="FIFA Penalty">🥅 FIFA Penalty / Tirs au But</option>
+              <option value="FIFA Volta 3x3 / 4x4 / 5x5">⚡ FIFA Volta / Format Réduit (3x3, 4x4, 5x5)</option>
+              <option value="Jeux Virtuels (Dés / 21)">🎲 Jeux Virtuels (Jeux de Dés / 21 / Blackjack eSport)</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs text-slate-400 mb-1 font-semibold">Championnat / Type de Tournoi eSport</label>
+            <input 
+              v-model="championnat" 
+              type="text" 
+              placeholder="ex: Esports Battle, FIFA Cyber Premier League, Volta League..." 
+              class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-purple-500 transition"
+              required
+            />
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs text-slate-400 mb-1 font-semibold">Joueur 1 / Équipe 1</label>
+              <input 
+                v-model="homeTeam" 
+                type="text" 
+                placeholder="ex: Joueur A (Liverpool eSport)" 
+                class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-purple-500 transition"
+                required
+              />
+            </div>
+
+            <div>
+              <label class="block text-xs text-slate-400 mb-1 font-semibold">Joueur 2 / Équipe 2</label>
+              <input 
+                v-model="awayTeam" 
+                type="text" 
+                placeholder="ex: Joueur B (Real Madrid eSport)" 
+                class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-100 focus:outline-none focus:border-purple-500 transition"
+                required
+              />
+            </div>
+          </div>
+
+          <button 
+            type="submit" 
+            :disabled="enChargement"
+            class="w-full bg-purple-600 hover:bg-purple-500 text-white font-black py-3.5 rounded-xl shadow-lg transition flex justify-center items-center gap-2 cursor-pointer disabled:opacity-50"
+          >
+            <span v-if="enChargement" class="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full"></span>
+            <span v-else>⚡ GÉNÉRER L'ANALYSE ESPORT DÉTAILLÉE</span>
           </button>
         </form>
       </div>
@@ -128,44 +196,44 @@
           </div>
 
           <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 text-center">
-            <div class="text-xs text-slate-400 font-medium">Score Exact Prédit</div>
+            <div class="text-xs text-slate-400 font-medium">Score Exact / Tirs Prédits</div>
             <div class="text-emerald-300 font-black text-2xl mt-1">{{ resultatAnalyse.score_exact_predit }}</div>
           </div>
         </div>
 
-        <!-- PROBABILITÉS 1N2 -->
+        <!-- PROBABILITÉS -->
         <div class="space-y-2">
           <div class="text-xs text-slate-400 font-bold">Probabilités Calculées</div>
           <div class="grid grid-cols-3 text-center text-xs gap-2 bg-slate-950 p-3 rounded-xl border border-slate-800">
             <div>
-              <div class="text-slate-500">1 (Domicile)</div>
-              <div class="font-bold text-slate-200 mt-1 text-sm">{{ resultatAnalyse.probabilites.domicile }}</div>
+              <div class="text-slate-500">1 (Victoire 1)</div>
+              <div class="font-bold text-slate-200 mt-1 text-sm">{{ resultatAnalyse.probabilites?.domicile || '-' }}</div>
             </div>
             <div>
-              <div class="text-slate-500">X (Match Nul)</div>
-              <div class="font-bold text-slate-200 mt-1 text-sm">{{ resultatAnalyse.probabilites.nul }}</div>
+              <div class="text-slate-500">X (Nul / Égalité)</div>
+              <div class="font-bold text-slate-200 mt-1 text-sm">{{ resultatAnalyse.probabilites?.nul || '-' }}</div>
             </div>
             <div>
-              <div class="text-slate-500">2 (Extérieur)</div>
-              <div class="font-bold text-slate-200 mt-1 text-sm">{{ resultatAnalyse.probabilites.exterieur }}</div>
+              <div class="text-slate-500">2 (Victoire 2)</div>
+              <div class="font-bold text-slate-200 mt-1 text-sm">{{ resultatAnalyse.probabilites?.exterieur || '-' }}</div>
             </div>
           </div>
         </div>
 
         <!-- STATISTIQUES AVANCÉES -->
         <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 space-y-3 text-xs">
-          <div class="font-bold text-slate-300 border-b border-slate-800 pb-2">Statistiques & Tendances</div>
+          <div class="font-bold text-slate-300 border-b border-slate-800 pb-2">Statistiques & Tendances Spécifiques</div>
           <div class="flex justify-between text-slate-400">
-            <span>Possession Attendue :</span>
-            <span class="text-slate-200 font-semibold">{{ resultatAnalyse.statistiques_avancees.possession_attendue }}</span>
+            <span>Rythme / Possession :</span>
+            <span class="text-slate-200 font-semibold">{{ resultatAnalyse.statistiques_avancees?.possession_attendue || 'N/A' }}</span>
           </div>
           <div class="flex justify-between text-slate-400">
-            <span>Tirs Cadrés Estimés :</span>
-            <span class="text-slate-200 font-semibold">{{ resultatAnalyse.statistiques_avancees.tirs_cadres_estimes }}</span>
+            <span>Occasions / Tirs Estimés :</span>
+            <span class="text-slate-200 font-semibold">{{ resultatAnalyse.statistiques_avancees?.tirs_cadres_estimes || 'N/A' }}</span>
           </div>
           <div class="flex justify-between text-slate-400">
-            <span>Conseil Paris Buts :</span>
-            <span class="text-emerald-400 font-bold">{{ resultatAnalyse.statistiques_avancees.conseil_paris }}</span>
+            <span>Conseil Paris (Buts / Total) :</span>
+            <span class="text-emerald-400 font-bold">{{ resultatAnalyse.statistiques_avancees?.conseil_paris || 'N/A' }}</span>
           </div>
         </div>
 
@@ -181,8 +249,9 @@
       setup() {
         const API_URL = 'https://reviz-predict-backend.onrender.com/api/analyser';
         
-        const typeMatch = ref('football');
-        const championnat = ref('UEFA Champions League');
+        const modeGlobal = ref('football');
+        const categorieEsport = ref('FIFA Championnat (8-12 min)');
+        const championnat = ref('Ligue 1');
         const homeTeam = ref('');
         const awayTeam = ref('');
         
@@ -195,6 +264,8 @@
           enChargement.value = true;
           resultatAnalyse.value = null;
 
+          const typeEnvoi = modeGlobal.value === 'esport' ? categorieEsport.value : 'football';
+
           try {
             const res = await fetch(API_URL, {
               method: 'POST',
@@ -203,7 +274,7 @@
                 homeTeam: homeTeam.value,
                 awayTeam: awayTeam.value,
                 championnat: championnat.value,
-                type: typeMatch.value
+                type: typeEnvoi
               })
             });
 
@@ -219,7 +290,8 @@
         };
 
         return {
-          typeMatch,
+          modeGlobal,
+          categorieEsport,
           championnat,
           homeTeam,
           awayTeam,
