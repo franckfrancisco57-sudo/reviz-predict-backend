@@ -9,13 +9,6 @@ app.use(express.json());
 const apiKey = process.env.GEMINI_API_KEY || '';
 const genAI = new GoogleGenerativeAI(apiKey);
 
-// Modèles stables recommandés par Google AI Studio
-const MODEL_NAMES = [
-  'gemini-1.5-flash',
-  'gemini-1.5-pro',
-  'gemini-1.0-pro'
-];
-
 app.post('/api/analyser', async (req: Request, res: Response) => {
   try {
     const { homeTeam, awayTeam, championnat, type, numPartie } = req.body;
@@ -47,28 +40,10 @@ app.post('/api/analyser', async (req: Request, res: Response) => {
       Rédige la réponse en français avec un ton professionnel, clair et structuré.
     `;
 
-    let responseText = "";
-    let lastError = null;
-
-    // Teste chaque modèle jusqu'à trouver celui disponible sur ton compte
-    for (const modelName of MODEL_NAMES) {
-      try {
-        const model = genAI.getGenerativeModel({ model: modelName });
-        const result = await model.generateContent(prompt);
-        responseText = result.response.text();
-        if (responseText) {
-          console.log(`Analyse générée avec succès via ${modelName}`);
-          break;
-        }
-      } catch (err) {
-        console.warn(`Modèle ${modelName} non disponible, tentative suivante...`);
-        lastError = err;
-      }
-    }
-
-    if (!responseText) {
-      throw lastError || new Error("Aucun modèle Gemini valide n'est accessible.");
-    }
+    // Utilisation directe du modèle Gemini 1.5 Flash
+    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    const result = await model.generateContent(prompt);
+    const responseText = result.response.text();
 
     res.json({
       status: 'ok',
@@ -76,7 +51,7 @@ app.post('/api/analyser', async (req: Request, res: Response) => {
     });
 
   } catch (error: any) {
-    console.error(error);
+    console.error("Erreur Gemini :", error);
     res.status(500).json({
       status: 'error',
       message: error.message || "Erreur lors de la génération."
