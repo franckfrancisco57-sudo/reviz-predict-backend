@@ -9,14 +9,19 @@ app.use(express.json());
 const apiKey = process.env.GEMINI_API_KEY || '';
 const genAI = new GoogleGenerativeAI(apiKey);
 
+// Liste des modèles reconnus par les clés Google AI Studio
+const MODEL_NAMES = [
+  'gemini-1.5-flash',
+  'gemini-1.5-pro',
+  'gemini-1.0-pro',
+  'gemini-2.0-flash-exp'
+];
+
 app.post('/api/analyser', async (req: Request, res: Response) => {
   try {
     const { homeTeam, awayTeam, championnat, type, numPartie } = req.body;
 
-    // Utilisation du modèle gemini-1.5-flash
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
-
-    let consignesSpecifiques = '';
+    let consignesSpecifiques = "";
 
     if (type === 'Jeu 21') {
       consignesSpecifiques = `
@@ -43,8 +48,28 @@ app.post('/api/analyser', async (req: Request, res: Response) => {
       Rédige la réponse en français avec un ton professionnel, clair et structuré.
     `;
 
-    const result = await model.generateContent(prompt);
-    const responseText = result.response.text();
+    let responseText = "";
+    let lastError = null;
+
+    // Essaie chaque modèle jusqu'à ce que Google accepte la requête
+    for (const modelName of MODEL_NAMES) {
+      try {
+        const model = genAI.getGenerativeModel({ model: modelName });
+        const result = await model.generateContent(prompt);
+        responseText = result.response.text();
+        if (responseText) {
+          console.log(`Analyse générée avec succès via : ${modelName}`);
+          break;
+        }
+      } catch (err) {
+        console.warn(`Modèle ${modelName} indisponible, essai du suivant...`);
+        lastError = err;
+      }
+    }
+
+    if (!responseText) {
+      throw lastError || new Error("Aucun modèle Gemini n'est accessible avec cette clé API.");
+    }
 
     res.json({
       status: 'ok',
@@ -55,7 +80,7 @@ app.post('/api/analyser', async (req: Request, res: Response) => {
     console.error(error);
     res.status(500).json({
       status: 'error',
-      message: error.message || 'Erreur interne lors de la génération.'
+      message: error.message || "Erreur interne lors de la génération."
     });
   }
 });
