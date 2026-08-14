@@ -9,12 +9,10 @@ app.use(express.json());
 const apiKey = process.env.GEMINI_API_KEY || '';
 const genAI = new GoogleGenerativeAI(apiKey);
 
-// Liste des modèles reconnus par les clés Google AI Studio
+// Modèles stables et actifs en production
 const MODEL_NAMES = [
   'gemini-1.5-flash',
-  'gemini-1.5-pro',
-  'gemini-1.0-pro',
-  'gemini-2.0-flash-exp'
+  'gemini-1.5-pro'
 ];
 
 app.post('/api/analyser', async (req: Request, res: Response) => {
@@ -49,35 +47,44 @@ app.post('/api/analyser', async (req: Request, res: Response) => {
     `;
 
     let responseText = "";
-    let lastError = null;
+    let errorsLog: string[] = [];
 
-    // Essaie chaque modèle jusqu'à ce que Google accepte la requête
+    // Tester chaque modèle sans faire crasher la boucle
     for (const modelName of MODEL_NAMES) {
       try {
+        console.log(`Tentative de génération avec : ${modelName}...`);
         const model = genAI.getGenerativeModel({ model: modelName });
         const result = await model.generateContent(prompt);
-        responseText = result.response.text();
-        if (responseText) {
-          console.log(`Analyse générée avec succès via : ${modelName}`);
-          break;
+        
+        if (result && result.response) {
+          responseText = result.response.text();
+          if (responseText) {
+            console.log(`Succès avec ${modelName}`);
+            break;
+          }
         }
-      } catch (err) {
-        console.warn(`Modèle ${modelName} indisponible, essai du suivant...`);
-        lastError = err;
+      } catch (err: any) {
+        console.warn(`Échec avec ${modelName}:`, err.message || err);
+        errorsLog.push(`${modelName}: ${err.message || 'Error'}`);
       }
     }
 
+    // Si aucun modèle n'a fonctionné
     if (!responseText) {
-      throw lastError || new Error("Aucun modèle Gemini n'est accessible avec cette clé API.");
+      return res.status(500).json({
+        status: 'error',
+        message: `Impossible d'accéder aux modèles Gemini. Détails: ${errorsLog.join(' | ')}`
+      });
     }
 
+    // Succès
     res.json({
       status: 'ok',
       analyse: responseText
     });
 
   } catch (error: any) {
-    console.error(error);
+    console.error("Erreur générale serveur :", error);
     res.status(500).json({
       status: 'error',
       message: error.message || "Erreur interne lors de la génération."
