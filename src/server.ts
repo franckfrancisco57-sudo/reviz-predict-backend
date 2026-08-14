@@ -1,20 +1,13 @@
 import express, { Request, Response } from 'express';
 import cors from 'cors';
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { GoogleGenAI } from '@google/genai';
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
 const apiKey = process.env.GEMINI_API_KEY || '';
-const genAI = new GoogleGenerativeAI(apiKey);
-
-// Nouveaux identifiants officiels de l'API Google
-const MODEL_NAMES = [
-  'gemini-2.0-flash',
-  'gemini-2.5-flash',
-  'gemini-2.0-flash-lite'
-];
+const ai = new GoogleGenAI({ apiKey });
 
 app.post('/api/analyser', async (req: Request, res: Response) => {
   try {
@@ -47,41 +40,22 @@ app.post('/api/analyser', async (req: Request, res: Response) => {
       Rédige la réponse en français avec un ton professionnel, clair et structuré.
     `;
 
-    let responseText = "";
-    let errorsLog: string[] = [];
-
-    for (const modelName of MODEL_NAMES) {
-      try {
-        console.log(`Essai avec : ${modelName}`);
-        const model = genAI.getGenerativeModel({ model: modelName });
-        const result = await model.generateContent(prompt);
-        
-        if (result && result.response) {
-          responseText = result.response.text();
-          if (responseText) break;
-        }
-      } catch (err: any) {
-        errorsLog.push(`${modelName}: ${err.message || 'Error'}`);
-      }
-    }
-
-    if (!responseText) {
-      return res.status(500).json({
-        status: 'error',
-        message: `Erreur API Gemini. Détails : ${errorsLog.join(' | ')}`
-      });
-    }
+    // Appel direct via la nouvelle SDK Interactions
+    const response = await ai.models.generateContent({
+      model: 'gemini-2.5-flash',
+      contents: prompt,
+    });
 
     res.json({
       status: 'ok',
-      analyse: responseText
+      analyse: response.text
     });
 
   } catch (error: any) {
-    console.error(error);
+    console.error("Erreur serveur :", error);
     res.status(500).json({
       status: 'error',
-      message: error.message || "Erreur interne lors de la génération."
+      message: error.message || "Erreur lors de la génération de l'analyse."
     });
   }
 });
