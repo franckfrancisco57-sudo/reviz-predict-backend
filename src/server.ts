@@ -9,10 +9,11 @@ app.use(express.json());
 const apiKey = process.env.GEMINI_API_KEY || '';
 const genAI = new GoogleGenerativeAI(apiKey);
 
-// Modèles stables et actifs en production
+// Nouveaux identifiants officiels de l'API Google
 const MODEL_NAMES = [
-  'gemini-1.5-flash',
-  'gemini-1.5-pro'
+  'gemini-2.0-flash',
+  'gemini-2.5-flash',
+  'gemini-2.0-flash-lite'
 ];
 
 app.post('/api/analyser', async (req: Request, res: Response) => {
@@ -49,42 +50,35 @@ app.post('/api/analyser', async (req: Request, res: Response) => {
     let responseText = "";
     let errorsLog: string[] = [];
 
-    // Tester chaque modèle sans faire crasher la boucle
     for (const modelName of MODEL_NAMES) {
       try {
-        console.log(`Tentative de génération avec : ${modelName}...`);
+        console.log(`Essai avec : ${modelName}`);
         const model = genAI.getGenerativeModel({ model: modelName });
         const result = await model.generateContent(prompt);
         
         if (result && result.response) {
           responseText = result.response.text();
-          if (responseText) {
-            console.log(`Succès avec ${modelName}`);
-            break;
-          }
+          if (responseText) break;
         }
       } catch (err: any) {
-        console.warn(`Échec avec ${modelName}:`, err.message || err);
         errorsLog.push(`${modelName}: ${err.message || 'Error'}`);
       }
     }
 
-    // Si aucun modèle n'a fonctionné
     if (!responseText) {
       return res.status(500).json({
         status: 'error',
-        message: `Impossible d'accéder aux modèles Gemini. Détails: ${errorsLog.join(' | ')}`
+        message: `Erreur API Gemini. Détails : ${errorsLog.join(' | ')}`
       });
     }
 
-    // Succès
     res.json({
       status: 'ok',
       analyse: responseText
     });
 
   } catch (error: any) {
-    console.error("Erreur générale serveur :", error);
+    console.error(error);
     res.status(500).json({
       status: 'error',
       message: error.message || "Erreur interne lors de la génération."
